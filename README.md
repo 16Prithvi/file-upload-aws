@@ -1,104 +1,100 @@
 # AWS Serverless File Processing Pipeline
 
 ## 📌 Overview
-This project demonstrates an **event-driven, serverless backend** designed to automate file processing. When a file is uploaded to an Amazon S3 bucket, the system automatically triggers a validation and metadata extraction workflow, storing the results in Amazon DynamoDB. 
+This project implements an **event-driven, serverless backend** designed to automate file processing. When a file is uploaded to an Amazon S3 bucket, the system instantly triggers a validation and metadata extraction workflow, storing the results in Amazon DynamoDB.
 
-The architecture demonstrates core cloud-native principles: **scalability, least-privilege security, and cost-efficiency** by staying entirely within the AWS Free Tier.
+The architecture adheres to core cloud-native principles—**scalability, least-privilege security, and cost-efficiency**—by operating entirely within the AWS Free Tier.
 
 ---
 
 ## 🏗 System Architecture
 
-The pipeline follows a decoupled, event-driven flow:
-1. **Trigger:** A user or system uploads a file to **Amazon S3**.
-2. **Event:** S3 sends a notification to **AWS Lambda**.
-3. **Compute:** The Lambda function processes the file, validates its type/size, and extracts metadata.
-4. **Storage:** Extracted data is persisted in **Amazon DynamoDB**.
-5. **Observability:** All execution steps and errors are tracked via **Amazon CloudWatch**.
-<img width="1024" height="682" alt="image" src="https://github.com/user-attachments/assets/38ba1b3b-480f-42d7-a1dd-ccf44d1d2b7e" />
+The pipeline follows a decoupled, event-driven flow as illustrated below:
 
+1.  **Trigger:** A user or system uploads a file to the **Amazon S3** bucket.
+2.  **Event:** S3 publishes an "Object Creation Event," which triggers **AWS Lambda**.
+3.  **Compute:** The Lambda function executes the logic to validate the file and extract metadata.
+4.  **Storage:** Processed metadata is persisted into an **Amazon DynamoDB** table.
+5.  **Observability:** Lambda streams execution logs and errors to **Amazon CloudWatch** for monitoring.
+
+<img width="1024" height="682" alt="Architecture Diagram" src="https://github.com/user-attachments/assets/38ba1b3b-480f-42d7-a1dd-ccf44d1d2b7e" />
 
 ---
 
 ## 🛠 Tech Stack
 * **Storage:** Amazon S3 (Simple Storage Service)
-* **Compute:** AWS Lambda (Python / Boto3)
+* **Compute:** AWS Lambda (Python 3.9 / Boto3 SDK)
 * **Database:** Amazon DynamoDB (NoSQL)
 * **Security:** AWS IAM (Identity and Access Management)
-* **Monitoring:** Amazon CloudWatch
+* **Monitoring:** Amazon CloudWatch Logs
 
 ---
 
 ## 🚀 Key Features
-* **Automated Triggers:** Zero-latency processing upon file upload.
-* **Schema Design:** Optimized DynamoDB table for fast metadata retrieval.
-* **Security-First:** Custom IAM policies ensuring the Lambda function follows the Principle of Least Privilege.
-* **Validation Logic:** Automated checks for file constraints.
-* **Comprehensive Logging:** Real-time debugging and execution history through CloudWatch.
+* **Event-Driven:** Zero-latency processing triggered immediately upon file upload.
+* **Optimized Storage:** Efficient DynamoDB schema design for fast metadata retrieval.
+* **Security-First:** Implements least-privilege access using granular IAM policies.
+* **Validation Logic:** Automated checks for file types and constraints prior to storage.
+* **Full Observability:** Real-time debugging and historical execution tracking via CloudWatch.
 
 ---
 
 ## 🔧 Implementation Details
 
-### 1. Amazon S3 Configuration
-A dedicated S3 bucket acts as the landing zone for raw files. 
-* **Event Notification:** Configured to trigger on `s3:ObjectCreated:*` events to invoke the Lambda function.
+### 1. Amazon S3 Bucket (Source)
+A dedicated S3 bucket, shown below as `file-upload-bucket-nep-1`, serves as the landing zone for raw files. It is configured to send an event notification on `s3:ObjectCreated:*` actions to invoke the backend Lambda function.
 
-<img width="1855" height="776" alt="s3-uploads" src="https://github.com/user-attachments/assets/a5bf1be4-84d2-40b9-8c8e-e655acbdd291" />
+<img width="1855" height="776" alt="S3 Bucket Overview" src="https://github.com/user-attachments/assets/a5bf1be4-84d2-40b9-8c8e-e655acbdd291" />
 
 ### 2. IAM Role & Security
-To ensure a secure environment, I created a custom IAM Execution Role with the following policy actions:
-* `s3:GetObject` (Limited to the source bucket)
-* `dynamodb:PutItem` (Limited to the metadata table)
-* `logs:CreateLogGroup`, `logs:CreateLogStream`, `logs:PutLogEvents`
+To ensure secure execution, a custom IAM Role was created for the Lambda function with strictly scoped permissions:
+* `s3:GetObject`: Read access limited strictly to the source S3 bucket.
+* `dynamodb:PutItem`: Write access limited to the metadata DynamoDB table.
+* `logs:*`: Permissions to write execution events to CloudWatch logs.
 
+### 3. AWS Lambda Function (Processor)
+The core logic is handled by a Python 3.9 Lambda function shown below. The code initializes Boto3 clients for S3 and DynamoDB, parses the incoming event to retrieve the bucket name and file key, and passes them to a processing handler.
 
-### 3. AWS Lambda Logic
-The core processing engine. The function is responsible for:
-* Parsing the S3 event object.
-* Extracting metadata (File name, size, extension, upload time).
-* Validating requirements before writing to the database.
-* <img width="1850" height="818" alt="lambda-overview" src="https://github.com/user-attachments/assets/df623746-a04e-47eb-9abc-af692cf3f8c5" />
+<img width="1850" height="818" alt="Lambda Function Console" src="https://github.com/user-attachments/assets/df623746-a04e-47eb-9abc-af692cf3f8c5" />
 
+### 4. Amazon DynamoDB (Metadata Storage)
+Extracted metadata is stored based on the schema defined below. The screenshot confirms that files uploaded to S3 (like `sample.pdf` and `test.txt`) have been successfully processed and their details populated in the table with a status of `PROCESSED`.
 
-### 4. DynamoDB Schema
-The metadata is stored using the following schema:
+**Table Schema:**
 | Attribute | Type | Description |
 | :--- | :--- | :--- |
-| `documentId` | String (PK) | Unique identifier |
-| `fileName` | String | Original name of the uploaded file |
+| `documentId` | String (PK) | Unique identifier (UUID) |
+| `fileName` | String | Original name of the file |
 | `fileType` | String | MIME type (e.g., application/pdf) |
 | `fileSize` | Number | Size in bytes |
 | `status` | String | Processing state (SUCCESS/FAILED) |
 | `uploadedAt` | String | ISO 8601 timestamp |
 
-<img width="1735" height="626" alt="dynamodb-items" src="https://github.com/user-attachments/assets/c9684ef8-7863-4c5e-8b83-4399584c0a5e" />
+<img width="1735" height="626" alt="DynamoDB Table Items" src="https://github.com/user-attachments/assets/c9684ef8-7863-4c5e-8b83-4399584c0a5e" />
 
 ---
 
 ## 📊 Testing & Validation
-To validate the system, I performed the following tests:
-1.  **Success Path:** Uploaded `sample.pdf`; verified the record appeared in DynamoDB and logs showed `"File sample.pdf processed with status PROCESSED, words=446"`.
-2.  **Error Handling:** Uploaded a file exceeding size limits; verified that CloudWatch captured the validation error.
-3.  **Permissions Test:** Verified IAM blocked unauthorized service requests.
+The system was validated through various scenarios. The CloudWatch logs below provide proof of a successful execution flow.
 
-<img width="2976" height="1408" alt="cloudwatch-img" src="https://github.com/user-attachments/assets/38cc28ac-ecd7-4318-91c5-8a81ce430e39" />
+1.  **Success Path:** Uploaded `sample.pdf`. The logs confirm the function triggered correctly and outputted specific metadata: `"File sample.pdf processed with status PROCESSED, words=446"`.
+2.  **Error Handling:** Verified that invalid files (e.g., exceeding size limits) are caught by validation logic and logged as errors without corrupting the database.
+3.  **Security:** Verified that the Lambda role cannot access resources outside its defined scope.
 
+<img width="1850" height="872" alt="CloudWatch Logs" src="https://github.com/user-attachments/assets/3a682576-e71b-489d-9601-7626900c0c24" />
 
 ---
 
 ## 💡 Key Learnings
-* **Event-Driven Design:** Understanding how to build systems that "react" to data events.
-* **Cloud Security:** Implementation of granular IAM policies to reduce the attack surface.
-* **NoSQL Modeling:** Designing efficient schemas for high-speed metadata storage.
-* **Serverless Lifecycle:** Managing code execution without the overhead of server maintenance.
+* **Event-Driven Architectures:** Designing systems that react asynchronously to state changes rather than polling.
+* **Cloud Security Posture:** The critical importance of defining granular IAM policies to minimize the attack surface.
+* **NoSQL Data Modeling:** Designing efficient, single-table schemas in DynamoDB for operational workloads.
+* **Serverless Operations:** Managing the lifecycle and monitoring of Functions-as-a-Service (FaaS).
 
 ---
 
 ## 🛠 Future Roadmap
-* **AI Integration:** Use **Amazon Textract** to perform deeper OCR and analysis on uploaded documents.
-* **Security Scanning:** Integrate malware scanning before processing.
-* **Notifications:** Add **Amazon SNS** to send alerts upon successful processing.
-* **Frontend Interface:** Build a **Next.js** dashboard for visualization.
-
----
+* **AI/ML Integration:** Incorporate **Amazon Textract** for deep document OCR and data extraction.
+* **Enhanced Security:** Integrate antivirus scanning on S3 uploads prior to triggering the processing workflow.
+* **User Notifications:** Use **Amazon SNS** to send email or SMS alerts upon successful processing or failures.
+* **Frontend Application:** Develop a modern **Next.js** web interface for users to upload files and visualize processed metadata.
