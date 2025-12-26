@@ -17,7 +17,7 @@ The pipeline follows a decoupled, event-driven flow as illustrated below:
 4. **Storage:** Processed metadata is persisted into an **Amazon DynamoDB** table.
 5. **Observability:** Lambda streams execution logs and errors to **Amazon CloudWatch** for monitoring.
 
-<img width="666" height="443" alt="Architecture Diagram" src="https://github.com/user-attachments/assets/38ba1b3b-480f-42d7-a1dd-ccf44d1d2b7e" />
+<img width="866" height="543" alt="Architecture Diagram" src="https://github.com/user-attachments/assets/38ba1b3b-480f-42d7-a1dd-ccf44d1d2b7e" />
 
 ---
 
@@ -44,7 +44,7 @@ The pipeline follows a decoupled, event-driven flow as illustrated below:
 ### 1. Amazon S3 Bucket (Source)
 A dedicated S3 bucket, shown below as `file-upload-bucket-nep-1`, serves as the landing zone for raw files. It is configured to send an event notification on `s3:ObjectCreated:*` actions to invoke the backend Lambda function.
 
-<img width="666" height="443" alt="S3 Bucket Overview" src="https://github.com/user-attachments/assets/a5bf1be4-84d2-40b9-8c8e-e655acbdd291" />
+<img width="866" height="543" alt="S3 Bucket Overview" src="https://github.com/user-attachments/assets/a5bf1be4-84d2-40b9-8c8e-e655acbdd291" />
 
 ### 2. IAM Role & Security
 To ensure secure execution, a custom IAM Role was created for the Lambda function with strictly scoped permissions:
@@ -55,7 +55,7 @@ To ensure secure execution, a custom IAM Role was created for the Lambda functio
 ### 3. AWS Lambda Function (Processor)
 The core logic is handled by a Python 3.9 Lambda function shown below. The code initializes Boto3 clients for S3 and DynamoDB, parses the incoming event to retrieve the bucket name and file key, and passes them to a processing handler.
 
-<img width="666" height="443" alt="Lambda Function Console" src="https://github.com/user-attachments/assets/df623746-a04e-47eb-9abc-af692cf3f8c5" />
+<img width="866" height="543" alt="Lambda Function Console" src="https://github.com/user-attachments/assets/df623746-a04e-47eb-9abc-af692cf3f8c5" />
 
 ### 4. Amazon DynamoDB (Metadata Storage)
 Extracted metadata is stored based on the schema defined below. The screenshot confirms that files uploaded to S3 (like `sample.pdf` and `test.txt`) have been successfully processed and their details populated in the table with a status of `PROCESSED`.
@@ -70,7 +70,7 @@ Extracted metadata is stored based on the schema defined below. The screenshot c
 | `status` | String | Processing state (SUCCESS/FAILED) |
 | `uploadedAt` | String | ISO 8601 timestamp |
 
-<img width="666" height="443" alt="DynamoDB Table Items" src="https://github.com/user-attachments/assets/c9684ef8-7863-4c5e-8b83-4399584c0a5e" />
+<img width="866" height="543" alt="DynamoDB Table Items" src="https://github.com/user-attachments/assets/c9684ef8-7863-4c5e-8b83-4399584c0a5e" />
 
 ---
 
