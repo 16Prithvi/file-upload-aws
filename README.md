@@ -15,7 +15,7 @@ The pipeline follows a decoupled, event-driven flow:
 3. **Compute:** The Lambda function processes the file, validates its type/size, and extracts metadata.
 4. **Storage:** Extracted data is persisted in **Amazon DynamoDB**.
 5. **Observability:** All execution steps and errors are tracked via **Amazon CloudWatch**.
-
+<img width="1024" height="682" alt="image" src="https://github.com/user-attachments/assets/38ba1b3b-480f-42d7-a1dd-ccf44d1d2b7e" />
 
 
 ---
@@ -44,7 +44,7 @@ The pipeline follows a decoupled, event-driven flow:
 A dedicated S3 bucket acts as the landing zone for raw files. 
 * **Event Notification:** Configured to trigger on `s3:ObjectCreated:*` events to invoke the Lambda function.
 
-> **[Insert Screenshot: S3 Bucket configuration and event notification settings]**
+<img width="1855" height="776" alt="s3-uploads" src="https://github.com/user-attachments/assets/a5bf1be4-84d2-40b9-8c8e-e655acbdd291" />
 
 ### 2. IAM Role & Security
 To ensure a secure environment, I created a custom IAM Execution Role with the following policy actions:
@@ -52,13 +52,14 @@ To ensure a secure environment, I created a custom IAM Execution Role with the f
 * `dynamodb:PutItem` (Limited to the metadata table)
 * `logs:CreateLogGroup`, `logs:CreateLogStream`, `logs:PutLogEvents`
 
-> **[Insert Screenshot: IAM Policy JSON or Role permissions summary]**
 
 ### 3. AWS Lambda Logic
 The core processing engine. The function is responsible for:
 * Parsing the S3 event object.
 * Extracting metadata (File name, size, extension, upload time).
 * Validating requirements before writing to the database.
+* <img width="1850" height="818" alt="lambda-overview" src="https://github.com/user-attachments/assets/df623746-a04e-47eb-9abc-af692cf3f8c5" />
+
 
 ### 4. DynamoDB Schema
 The metadata is stored using the following schema:
@@ -66,22 +67,23 @@ The metadata is stored using the following schema:
 | :--- | :--- | :--- |
 | `documentId` | String (PK) | Unique identifier |
 | `fileName` | String | Original name of the uploaded file |
-| `fileType` | String | MIME type (e.g., image/jpeg) |
+| `fileType` | String | MIME type (e.g., application/pdf) |
 | `fileSize` | Number | Size in bytes |
 | `status` | String | Processing state (SUCCESS/FAILED) |
 | `uploadedAt` | String | ISO 8601 timestamp |
 
-> **[Insert Screenshot: DynamoDB Table view showing successfully processed items]**
+<img width="1735" height="626" alt="dynamodb-items" src="https://github.com/user-attachments/assets/c9684ef8-7863-4c5e-8b83-4399584c0a5e" />
 
 ---
 
 ## 📊 Testing & Validation
 To validate the system, I performed the following tests:
-1.  **Success Path:** Uploaded a valid file; verified the record appeared in DynamoDB and logs showed "200 OK".
+1.  **Success Path:** Uploaded `sample.pdf`; verified the record appeared in DynamoDB and logs showed `"File sample.pdf processed with status PROCESSED, words=446"`.
 2.  **Error Handling:** Uploaded a file exceeding size limits; verified that CloudWatch captured the validation error.
 3.  **Permissions Test:** Verified IAM blocked unauthorized service requests.
 
-> **[Insert Screenshot: CloudWatch Log streams showing a successful execution flow]**
+<img width="2976" height="1408" alt="cloudwatch-img" src="https://github.com/user-attachments/assets/38cc28ac-ecd7-4318-91c5-8a81ce430e39" />
+
 
 ---
 
@@ -94,7 +96,7 @@ To validate the system, I performed the following tests:
 ---
 
 ## 🛠 Future Roadmap
-* **AI Integration:** Use **Amazon Textract** to perform OCR on uploaded documents.
+* **AI Integration:** Use **Amazon Textract** to perform deeper OCR and analysis on uploaded documents.
 * **Security Scanning:** Integrate malware scanning before processing.
 * **Notifications:** Add **Amazon SNS** to send alerts upon successful processing.
 * **Frontend Interface:** Build a **Next.js** dashboard for visualization.
