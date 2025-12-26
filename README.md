@@ -44,7 +44,7 @@ The pipeline follows a decoupled, event-driven flow as illustrated below:
 ### 1. Amazon S3 Bucket (Source)
 A dedicated S3 bucket, shown below as `file-upload-bucket-nep-1`, serves as the landing zone for raw files. It is configured to send an event notification on `s3:ObjectCreated:*` actions to invoke the backend Lambda function.
 
-<img width="1206" height="504" alt="S3 Bucket Overview" src="https://github.com/user-attachments/assets/a5bf1be4-84d2-40b9-8c8e-e655acbdd291" />
+<img width="666" height="443" alt="S3 Bucket Overview" src="https://github.com/user-attachments/assets/a5bf1be4-84d2-40b9-8c8e-e655acbdd291" />
 
 ### 2. IAM Role & Security
 To ensure secure execution, a custom IAM Role was created for the Lambda function with strictly scoped permissions:
@@ -55,7 +55,7 @@ To ensure secure execution, a custom IAM Role was created for the Lambda functio
 ### 3. AWS Lambda Function (Processor)
 The core logic is handled by a Python 3.9 Lambda function shown below. The code initializes Boto3 clients for S3 and DynamoDB, parses the incoming event to retrieve the bucket name and file key, and passes them to a processing handler.
 
-<img width="1203" height="532" alt="Lambda Function Console" src="https://github.com/user-attachments/assets/df623746-a04e-47eb-9abc-af692cf3f8c5" />
+<img width="666" height="443" alt="Lambda Function Console" src="https://github.com/user-attachments/assets/df623746-a04e-47eb-9abc-af692cf3f8c5" />
 
 ### 4. Amazon DynamoDB (Metadata Storage)
 Extracted metadata is stored based on the schema defined below. The screenshot confirms that files uploaded to S3 (like `sample.pdf` and `test.txt`) have been successfully processed and their details populated in the table with a status of `PROCESSED`.
@@ -70,7 +70,7 @@ Extracted metadata is stored based on the schema defined below. The screenshot c
 | `status` | String | Processing state (SUCCESS/FAILED) |
 | `uploadedAt` | String | ISO 8601 timestamp |
 
-<img width="1128" height="407" alt="DynamoDB Table Items" src="https://github.com/user-attachments/assets/c9684ef8-7863-4c5e-8b83-4399584c0a5e" />
+<img width="666" height="443" alt="DynamoDB Table Items" src="https://github.com/user-attachments/assets/c9684ef8-7863-4c5e-8b83-4399584c0a5e" />
 
 ---
 
@@ -81,7 +81,7 @@ The system was validated through various scenarios. The CloudWatch logs below pr
 2. **Error Handling:** Verified that invalid files (e.g., exceeding size limits) are caught by validation logic and logged as errors without corrupting the database.
 3. **Security:** Verified that the Lambda role cannot access resources outside its defined scope.
 
-<img width="2976" height="1308" alt="cloudwatch-img" src="https://github.com/user-attachments/assets/b4091f85-6557-40ac-b7d1-9ccd5c032933" />
+<img width="666" height="443" alt="cloudwatch-img" src="https://github.com/user-attachments/assets/b4091f85-6557-40ac-b7d1-9ccd5c032933" />
 
 ---
 
