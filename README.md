@@ -81,7 +81,7 @@ The system was validated through various scenarios. The CloudWatch logs below pr
 2. **Error Handling:** Verified that invalid files (e.g., exceeding size limits) are caught by validation logic and logged as errors without corrupting the database.
 3. **Security:** Verified that the Lambda role cannot access resources outside its defined scope.
 
-<img width="666" height="443" alt="cloudwatch-img" src="https://github.com/user-attachments/assets/b4091f85-6557-40ac-b7d1-9ccd5c032933" />
+<img width="866" height="543" alt="cloudwatch-img" src="https://github.com/user-attachments/assets/b4091f85-6557-40ac-b7d1-9ccd5c032933" />
 
 ---
 
