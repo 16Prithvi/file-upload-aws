@@ -11,13 +11,13 @@ The architecture adheres to core cloud-native principles—**scalability, least-
 
 The pipeline follows a decoupled, event-driven flow as illustrated below:
 
-1.  **Trigger:** A user or system uploads a file to the **Amazon S3** bucket.
-2.  **Event:** S3 publishes an "Object Creation Event," which triggers **AWS Lambda**.
-3.  **Compute:** The Lambda function executes the logic to validate the file and extract metadata.
-4.  **Storage:** Processed metadata is persisted into an **Amazon DynamoDB** table.
-5.  **Observability:** Lambda streams execution logs and errors to **Amazon CloudWatch** for monitoring.
+1. **Trigger:** A user or system uploads a file to the **Amazon S3** bucket.
+2. **Event:** S3 publishes an "Object Creation Event," which triggers **AWS Lambda**.
+3. **Compute:** The Lambda function executes the logic to validate the file and extract metadata.
+4. **Storage:** Processed metadata is persisted into an **Amazon DynamoDB** table.
+5. **Observability:** Lambda streams execution logs and errors to **Amazon CloudWatch** for monitoring.
 
-<img width="1024" height="682" alt="Architecture Diagram" src="https://github.com/user-attachments/assets/38ba1b3b-480f-42d7-a1dd-ccf44d1d2b7e" />
+<img width="666" height="443" alt="Architecture Diagram" src="https://github.com/user-attachments/assets/38ba1b3b-480f-42d7-a1dd-ccf44d1d2b7e" />
 
 ---
 
@@ -44,7 +44,7 @@ The pipeline follows a decoupled, event-driven flow as illustrated below:
 ### 1. Amazon S3 Bucket (Source)
 A dedicated S3 bucket, shown below as `file-upload-bucket-nep-1`, serves as the landing zone for raw files. It is configured to send an event notification on `s3:ObjectCreated:*` actions to invoke the backend Lambda function.
 
-<img width="1855" height="776" alt="S3 Bucket Overview" src="https://github.com/user-attachments/assets/a5bf1be4-84d2-40b9-8c8e-e655acbdd291" />
+<img width="1206" height="504" alt="S3 Bucket Overview" src="https://github.com/user-attachments/assets/a5bf1be4-84d2-40b9-8c8e-e655acbdd291" />
 
 ### 2. IAM Role & Security
 To ensure secure execution, a custom IAM Role was created for the Lambda function with strictly scoped permissions:
@@ -55,7 +55,7 @@ To ensure secure execution, a custom IAM Role was created for the Lambda functio
 ### 3. AWS Lambda Function (Processor)
 The core logic is handled by a Python 3.9 Lambda function shown below. The code initializes Boto3 clients for S3 and DynamoDB, parses the incoming event to retrieve the bucket name and file key, and passes them to a processing handler.
 
-<img width="1850" height="818" alt="Lambda Function Console" src="https://github.com/user-attachments/assets/df623746-a04e-47eb-9abc-af692cf3f8c5" />
+<img width="1203" height="532" alt="Lambda Function Console" src="https://github.com/user-attachments/assets/df623746-a04e-47eb-9abc-af692cf3f8c5" />
 
 ### 4. Amazon DynamoDB (Metadata Storage)
 Extracted metadata is stored based on the schema defined below. The screenshot confirms that files uploaded to S3 (like `sample.pdf` and `test.txt`) have been successfully processed and their details populated in the table with a status of `PROCESSED`.
@@ -70,18 +70,18 @@ Extracted metadata is stored based on the schema defined below. The screenshot c
 | `status` | String | Processing state (SUCCESS/FAILED) |
 | `uploadedAt` | String | ISO 8601 timestamp |
 
-<img width="1735" height="626" alt="DynamoDB Table Items" src="https://github.com/user-attachments/assets/c9684ef8-7863-4c5e-8b83-4399584c0a5e" />
+<img width="1128" height="407" alt="DynamoDB Table Items" src="https://github.com/user-attachments/assets/c9684ef8-7863-4c5e-8b83-4399584c0a5e" />
 
 ---
 
 ## 📊 Testing & Validation
 The system was validated through various scenarios. The CloudWatch logs below provide proof of a successful execution flow.
 
-1.  **Success Path:** Uploaded `sample.pdf`. The logs confirm the function triggered correctly and outputted specific metadata: `"File sample.pdf processed with status PROCESSED, words=446"`.
-2.  **Error Handling:** Verified that invalid files (e.g., exceeding size limits) are caught by validation logic and logged as errors without corrupting the database.
-3.  **Security:** Verified that the Lambda role cannot access resources outside its defined scope.
+1. **Success Path:** Uploaded `sample.pdf`. The logs confirm the function triggered correctly and outputted specific metadata: `"File sample.pdf processed with status PROCESSED, words=446"`.
+2. **Error Handling:** Verified that invalid files (e.g., exceeding size limits) are caught by validation logic and logged as errors without corrupting the database.
+3. **Security:** Verified that the Lambda role cannot access resources outside its defined scope.
 
-<img width="1850" height="872" alt="CloudWatch Logs" src="https://github.com/user-attachments/assets/3a682576-e71b-489d-9601-7626900c0c24" />
+<img width="1203" height="567" alt="CloudWatch Logs" src="https://github.com/user-attachments/assets/3a682576-e71b-489d-9601-7626900c0c24" />
 
 ---
 
