@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+.env/
+
+# AWS
+.aws/
+*.pem
+*.key
+
+# Lambda build artifacts
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
